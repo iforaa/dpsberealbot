@@ -21,7 +21,7 @@ export class Scheduler {
 
         // Fetch chats with messages to be sent now, considering their timezone
         const chats = await this.botService.getChatsWithActiveSchedules();
-        console.log("SCHEDULER CHATS", chats);
+
         for (const chat of chats) {
           try {
             const {
@@ -38,7 +38,7 @@ export class Scheduler {
               this.normalizeTimezone(timezone),
             );
             const currentTime = this.formatTime(nowInUserTz);
-            console.log("SCHEDULER CURRENT TIME", currentTime);
+
             if (send_time != null) {
               console.log("current send time", send_time.slice(0, 5));
             }
@@ -60,21 +60,8 @@ export class Scheduler {
               // Generate a new random time for the next message in the user's timezone
               const newSendTimeInTz = this.getRandomTime(start_time, end_time);
 
-              // Convert the new send time back to UTC
-              const newSendTimeInUtc = this.convertTimeToUtc(
-                newSendTimeInTz,
-                this.normalizeTimezone(timezone),
-              );
-
-              console.log("timezone", timezone);
-              console.log("timeintz", newSendTimeInTz);
-              console.log("newSendTimeInUtc", newSendTimeInUtc);
-
               // Update the send_time in the database
-              await this.botService.setSendTime(chat.chat_id, newSendTimeInUtc);
-              console.log(
-                `Message sent to chat ID ${chat.chat_id}, next send time: ${newSendTimeInUtc} (UTC)`,
-              );
+              await this.botService.setSendTime(chat.chat_id, newSendTimeInTz);
             } else if (send_time == null) {
               console.log("SEND TIME IS NULL");
               // Generate a new random time for the next message in the user's timezone
