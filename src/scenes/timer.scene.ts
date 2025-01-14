@@ -17,6 +17,13 @@ export class TimerScene extends Scene {
     this.bot.command("settimer", async (ctx) => {
       return ctx.scene.enter(TimerScene.sceneName);
     });
+
+    this.bot.command("currenttimer", async (ctx) => {
+      const chat_settings = await this.botService.getChatSettings(ctx.chat?.id);
+      await ctx.reply(
+        `Текущий таймер: ${chat_settings.start_time} - ${chat_settings.end_time} в часовом поясе ${chat_settings.timezone}.`,
+      );
+    });
   }
 
   static sceneOne(botService: BotService): Composer<IBotContext> {
