@@ -55,7 +55,7 @@ export class Scheduler {
               );
 
               // Mark the message as sent
-              await this.botService.updateLastSentDate(chat.chat_id, send_time);
+              // await this.botService.updateLastSentDate(chat.chat_id, send_time);
 
               // Generate a new random time for the next message in the user's timezone
               const newSendTimeInTz = this.getRandomTime(start_time, end_time);
