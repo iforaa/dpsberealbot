@@ -4,16 +4,16 @@ export class DBRepository {
   constructor(private readonly dbService: DbService) {}
 
   // Method 1: Update 'last_sent_date' when a message is sent
-  async updateLastSentDate(
+  async updateDayMessageSent(
     chatId: number,
-    lastSentTime: string,
+    dayMessageSent: number,
   ): Promise<void> {
     const query = `
       UPDATE chat_settings
-      SET last_sent_date = $1
+      SET day_message_sent = $1
       WHERE chat_id = $2
     `;
-    await this.dbService.query(query, [lastSentTime, chatId]);
+    await this.dbService.query(query, [dayMessageSent, chatId]);
   }
 
   // Method 2: Set predefined send time for a chat
@@ -56,7 +56,7 @@ export class DBRepository {
   // Method 5: Get all chats eligible for notifications based on send_time
   async getChatsWithActiveSchedules(): Promise<any[]> {
     const query = `
-      SELECT chat_id, timezone, send_time, last_sent_date, start_time, end_time
+      SELECT chat_id, timezone, send_time, day_message_sent, start_time, end_time
       FROM chat_settings
     `;
     return await this.dbService.query(query);

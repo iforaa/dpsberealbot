@@ -30,20 +30,17 @@ export class TimerScene extends Scene {
     return new Composer<IBotContext>().on("text", async (ctx) => {
       const input = ctx.message.text;
       const userId = ctx.chat?.id;
-      console.log("userId", userId);
+
       try {
-        console.log("step 1");
         // Validate the timer format
         const timerRegex =
           /^([01]\d|2[0-3]):([0-5]\d)-([01]\d|2[0-3]):([0-5]\d)$/;
 
-        console.log("step 2");
         if (!timerRegex.test(input)) {
-          console.log("step 3");
           await ctx.reply("Используй формат Ч:M-Ч:М (например, 13:00-17:00).");
           return;
         }
-        console.log("step 4");
+
         // Save the timer input temporarily in session
         ctx.session.timerInput = input;
 
@@ -104,7 +101,7 @@ export class TimerScene extends Scene {
           await ctx.reply(
             "Неверный формат. Попробуй ещё раз (например, UTC+5):",
           );
-          return;
+          return ctx.scene.leave();
         }
 
         const userId = ctx.chat?.id;

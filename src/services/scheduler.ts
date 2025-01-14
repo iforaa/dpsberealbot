@@ -14,12 +14,10 @@ export class Scheduler {
     // Check every minute for scheduled messages
     cron.schedule("* * * * *", async () => {
       try {
-        console.log("Checking for scheduled messages...");
-
         const now = new Date();
+        const todayDayNumber = now.getDate();
         const nowUtc = now.toISOString(); // Current time in UTC
 
-        // Fetch chats with messages to be sent now, considering their timezone
         const chats = await this.botService.getChatsWithActiveSchedules();
 
         for (const chat of chats) {
@@ -27,51 +25,38 @@ export class Scheduler {
             const {
               timezone,
               send_time,
-              last_sent_date,
+              day_message_sent,
               start_time,
               end_time,
             } = chat;
 
-            // Convert current UTC time to the user's timezone
             const nowInUserTz = toZonedTime(
               nowUtc,
               this.normalizeTimezone(timezone),
             );
             const currentTime = this.formatTime(nowInUserTz);
 
-            if (send_time != null) {
-              console.log("current send time", send_time.slice(0, 5));
-            }
-
             if (
               send_time != null &&
-              last_sent_date == null &&
+              (day_message_sent == null ||
+                day_message_sent !== todayDayNumber) &&
               currentTime === send_time.slice(0, 5)
             ) {
-              // Send the message
               await this.bot.telegram.sendMessage(
                 chat.chat_id,
                 "Что ты делаешь прямо сейчас? Жду фотографии или видео.",
               );
 
-              // Mark the message as sent
-              // await this.botService.updateLastSentDate(chat.chat_id, send_time);
+              await this.botService.updateDayMessageSent(
+                chat.chat_id,
+                todayDayNumber,
+              );
 
-              // Generate a new random time for the next message in the user's timezone
               const newSendTimeInTz = this.getRandomTime(start_time, end_time);
-
-              // Update the send_time in the database
               await this.botService.setSendTime(chat.chat_id, newSendTimeInTz);
             } else if (send_time == null) {
-              console.log("SEND TIME IS NULL");
-              // Generate a new random time for the next message in the user's timezone
               const newSendTimeInTz = this.getRandomTime(start_time, end_time);
-
-              // Update the send_time in the database
               await this.botService.setSendTime(chat.chat_id, newSendTimeInTz);
-              console.log(
-                `Message scheduled to chat ID ${chat.chat_id}, next send time: ${newSendTimeInTz} (UTC)`,
-              );
             }
           } catch (error) {
             console.error(`Failed to process chat ID ${chat.chat_id}:`, error);

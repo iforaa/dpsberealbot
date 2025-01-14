@@ -24,8 +24,8 @@ export class BotService {
   }
 
   // Public method to update last sent date for a chat
-  async updateLastSentDate(chatId: number, sendTime: string): Promise<void> {
-    await this.botRepository.updateLastSentDate(chatId, sendTime);
+  async updateDayMessageSent(chatId: number, day: number): Promise<void> {
+    await this.botRepository.updateDayMessageSent(chatId, day);
   }
 
   async getChatsWithActiveSchedules(): Promise<any[]> {
